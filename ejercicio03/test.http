@@ -2,10 +2,11 @@
 GET http://localhost:5000/info
 Accept: application/json
 
-### Ruta POST /mensaje
+###
+
 POST http://localhost:5000/mensaje
 Content-Type: application/json
 
 {
-  "nombre": "Samuel Molina Delgado"
+  "nombre": "nombre_sistema"
 }
