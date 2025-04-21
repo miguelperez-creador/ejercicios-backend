@@ -1,6 +1,26 @@
-<h2>Login</h2>
-<form method="POST">
-  Username: <input type="text" name="username"><br>
-  Password: <input type="password" name="password"><br>
-  <input type="submit" value="Login">
-</form>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión</title>
+</head>
+<body>
+    <h2>Iniciar sesión</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li><strong>{{ category }}:</strong> {{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="post">
+        <input type="text" name="username" placeholder="Usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="submit" value="Iniciar sesión">
+    </form>
+</body>
+</html>

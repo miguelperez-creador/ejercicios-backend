@@ -1,7 +1,0 @@
-### Prueba POST a /mensaje
-POST http://localhost:5000/mensaje
-Content-Type: application/json
-
-{
-  "nombre": "Miguel"
-}

@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
 </head>
 <body>
-    <h1>Bienvenido a la página de inicio</h1>
-    
-    {% if current_user.is_authenticated %}
-        <p>Hola, {{ current_user.username }}!</p>
-        <a href="{{ url_for('protected') }}">Ir a zona protegida</a><br>
-        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+    <h2>Página principal</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li><strong>{{ category }}:</strong> {{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if user.is_authenticated %}
+        <p>Bienvenido, {{ user.id }} | <a href="{{ url_for('logout') }}">Cerrar sesión</a></p>
+        <a href="{{ url_for('protected') }}">Ir a ruta protegida</a>
     {% else %}
-        <p>No has iniciado sesión.</p>
-        <a href="{{ url_for('login') }}">Iniciar sesión</a>
+        <p><a href="{{ url_for('login') }}">Iniciar sesión</a></p>
     {% endif %}
 </body>
 </html>

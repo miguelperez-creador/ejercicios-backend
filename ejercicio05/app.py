@@ -1,64 +1,58 @@
-from flask import Flask, render_template, redirect, url_for, request
-from flask_login import LoginManager, login_user, login_required, logout_user, UserMixin, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from users import get_user, validate_user
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = 'tu_clave_secreta'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-# Sample users
-users = {
-    'admin': {
-        'id': 1,
-        'username': 'admin',
-        'password': generate_password_hash('admin123'),
-        'role': 'admin'
-    }
-}
-
-class User(UserMixin):
-    def __init__(self, id, username, role):
-        self.id = id
-        self.username = username
-        self.role = role
+login_manager.login_message = 'Debes iniciar sesión para acceder a esta página.'
 
 @login_manager.user_loader
 def load_user(user_id):
-    for user in users.values():
-        if user['id'] == int(user_id):
-            return User(user['id'], user['username'], user['role'])
-    return None
+    return get_user(user_id)
 
 @app.route('/')
-def home():
-    return render_template('home.html')
+def index():
+    return render_template('home.html', user=current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = users.get(username)
-        if user and check_password_hash(user['password'], password):
-            user_obj = User(user['id'], user['username'], user['role'])
-            login_user(user_obj)
-            return redirect(url_for('protected'))
-        return "Invalid credentials"
-    return render_template('login.html')
+    if current_user.is_authenticated:
+        return redirect(url_for('protected'))
 
-@app.route('/protected')
-@login_required
-def protected():
-    return render_template('protected.html', username=current_user.username)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if validate_user(username, password):
+            user = get_user(username)
+            if user:
+                login_user(user)
+                flash('Inicio de sesión exitoso.', 'success')
+                return redirect(url_for('protected'))
+
+        flash('Usuario o contraseña incorrectos.', 'danger')
+
+    return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    flash('Sesión cerrada correctamente.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/protected')
+@login_required
+def protected():
+    return render_template('protected.html', user=current_user)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
